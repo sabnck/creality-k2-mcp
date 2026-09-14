@@ -1,17 +1,34 @@
 # Creality K2 MCP
 
-Dá a clientes MCP contexto local e útil sobre uma Creality K2. O servidor lê o
-estado Moonraker, imagens da câmara, perfis locais do slicer, metadados de
-G-code e definições de projetos 3MF da Creality. Assim, o cliente consegue
-ajudar numa impressão com dados reais em vez de adivinhar.
+Liga um cliente MCP a uma Creality K2 e às ferramentas locais usadas à volta de
+uma impressão. O servidor expõe o estado Moonraker, imagens da câmara, perfis
+instalados do Creality Print, metadados de G-code e definições de projetos 3MF
+da Creality. Assim, Claude, Codex, ChatGPT ou outro cliente MCP consegue analisar
+um trabalho, ajudar a escolher e rever definições de fatiamento e acompanhar a
+impressora com dados locais reais em vez de adivinhar.
 
 ![Como o Creality K2 MCP liga a impressora aos clientes MCP](assets/k2-mcp-flow.svg)
+
+## O que isto é
+
+O Creality K2 MCP é a camada de ferramentas, não o agente. O cliente MCP faz o
+raciocínio e decide que ferramentas usar. Este servidor dá-lhe acesso à
+impressora, à câmara, aos dados do projeto e aos perfis que realmente existem no
+computador.
+
+Um fluxo assistido típico fica assim:
+
+`modelo ou projeto -> analisar -> escolher/rever definições -> preparar plano de fatiamento -> acompanhar`
+
+O utilizador mantém o controlo. O acesso começa em modo de leitura, os planos de
+fatiamento podem ser revistos e os comandos físicos da impressora são opcionais
+e limitados.
 
 O alvo testado é a Creality K2 com Moonraker na rede local. O projeto não diz
 que outras impressoras são compatíveis sem teste. O guia de adaptadores mostra
 como testar e adicionar outra máquina Moonraker sem inventar compatibilidade.
 
-## O que um cliente MCP consegue ver
+## O que um cliente MCP consegue usar
 
 - Estado atual da impressão, progresso, tempo decorrido e estimativa restante.
 - Camadas da K2 por `virtual_sdcard`, mais os ventiladores de modelo e lateral
@@ -21,7 +38,8 @@ como testar e adicionar outra máquina Moonraker sem inventar compatibilidade.
 - Leitura local de G-code e de projetos 3MF da Creality, sem alterar os
   ficheiros.
 - Os perfis que realmente existem no computador.
-- Um plano local e revísavel de fatiamento para o Creality Print, sem executar.
+- Um plano local e revísavel de fatiamento para o Creality Print, construído a
+  partir desses perfis instalados.
 - Comandos limitados para a impressora, apenas depois de autorização explícita.
   Não existe envio nem ferramenta para executar G-code arbitrário.
 
@@ -81,6 +99,10 @@ Na configuração normal o projeto apenas lê informação. Podes perguntar:
 - “Lê este 3MF e explica altura de camada, paredes, infill, suportes e perfil.”
 - “Compara estes dois G-code pelo tempo previsto, peso de filamento e camadas.”
 - “Que perfis K2 para bico 0.4 existem mesmo neste computador?”
+- “Prepara um plano de fatiamento para este modelo com o meu perfil Hyper PLA e
+  mostra que definições alteraste.”
+- “Compara uma configuração mais rápida com outra de maior detalhe antes de eu
+  escolher qual usar.”
 
 ## Controlo opcional da impressora
 

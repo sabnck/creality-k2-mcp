@@ -1,11 +1,26 @@
 # Creality K2 MCP
 
-Give MCP clients useful, local context about a Creality K2. The server reads
-live Moonraker state, camera snapshots, local slicer profiles, G-code metadata,
-and Creality 3MF project settings so a client can help with the work around a
-print instead of guessing.
+Connect an MCP client to a Creality K2 and the local tools around a print. The
+server exposes live Moonraker state, camera snapshots, installed Creality Print
+profiles, G-code metadata, and Creality 3MF project settings so Claude, Codex,
+ChatGPT, or another MCP client can inspect a job, help choose and review slicing
+settings, and monitor the printer using real local data instead of guesses.
 
 ![How Creality K2 MCP connects the printer and MCP clients](assets/k2-mcp-flow.svg)
+
+## What this is
+
+Creality K2 MCP is the tool layer, not the agent. The MCP client does the
+reasoning and decides which tools to call. This server gives it access to the
+printer, camera, project data, and the profiles that actually exist on the
+computer.
+
+A typical assisted workflow looks like this:
+
+`model or project -> inspect -> choose/review settings -> build slice plan -> monitor`
+
+The owner stays in control. Read-only access is the default, slice plans are
+reviewable, and physical printer controls are opt-in and bounded.
 
 The verified target is a Creality K2 with Moonraker on the local network. Other
 printers are not claimed as compatible. The adapter guide explains how to test
@@ -20,7 +35,8 @@ and add another Moonraker-based machine honestly.
   Klipper messages.
 - Read-only inspection of a local G-code file or Creality 3MF project.
 - The actual profiles installed on the computer, not an invented list.
-- A reviewable local Creality Print slice plan that the client does not run.
+- A reviewable local Creality Print slice plan built from those installed
+  profiles.
 - Optional, bounded printer actions only after the owner explicitly enables
   them. There is no G-code upload or raw G-code execution tool.
 
@@ -82,6 +98,10 @@ The normal setup is read-only. It can answer questions such as:
 - “Compare these two G-code files by estimated time, filament weight, and
   layer count.”
 - “Which K2 profiles are actually installed for a 0.4 nozzle?”
+- “Prepare a slice plan for this model with my installed Hyper PLA profile and
+  show me which settings you changed.”
+- “Compare a faster and a higher-detail setup before I choose which one to
+  use.”
 
 ## Optional printer control
 
