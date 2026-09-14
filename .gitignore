@@ -1,0 +1,24 @@
+# Local configuration and operating state
+.env
+runtime/
+presets/
+jobs/
+__pycache__/
+*.py[cod]
+
+# Personal printer and slicer material
+*.gcode
+*.gcode.3mf
+*.3mf
+*.stl
+*.jpeg
+*.jpg
+*.png
+
+# Local tools
+.venv/
+.pytest_cache/
+.mypy_cache/
+build/
+dist/
+*.egg-info/

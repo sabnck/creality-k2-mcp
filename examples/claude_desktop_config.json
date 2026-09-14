@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "creality-k2": {
+      "command": "C:\\replace\\with\\creality-k2-mcp\\.venv\\Scripts\\creality-k2-mcp.exe",
+      "args": [],
+      "env": {
+        "K2_HOST": "YOUR_PRINTER_HOST",
+        "K2_PORT": "7125",
+        "K2_ALLOW_WRITE": "0",
+        "K2_CLI": "C:\\replace\\with\\CrealityPrint.exe",
+        "K2_PROFILES": "C:\\replace\\with\\Creality\\profiles"
+      }
+    }
+  }
+}

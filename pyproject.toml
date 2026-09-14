@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "creality-k2-mcp"
+version = "1.0.0"
+description = "A safe-by-default MCP server for Creality K2 printers running Moonraker."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Fernandes" }]
+dependencies = [
+  "httpx>=0.27,<1",
+  "mcp>=2.2,<3",
+]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+]
+
+[project.scripts]
+creality-k2-mcp = "creality_k2_mcp.server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

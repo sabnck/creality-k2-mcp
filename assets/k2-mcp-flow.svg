@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 280" role="img" aria-labelledby="title description">
+  <title id="title">Creality K2 MCP local connection flow</title>
+  <desc id="description">A K2 printer connects locally to the Creality K2 MCP server, which supplies read-only context and optional guarded controls to MCP clients.</desc>
+  <style>
+    .bg { fill: #101827; } .box { fill: #18243a; stroke: #4d8cff; stroke-width: 2; }
+    .safe { fill: #173a31; stroke: #56c596; stroke-width: 2; } .text { fill: #edf3ff; font: 600 18px Arial, sans-serif; }
+    .small { fill: #b6c5dd; font: 14px Arial, sans-serif; } .line { stroke: #8ba8d8; stroke-width: 3; marker-end: url(#arrow); }
+  </style>
+  <defs><marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#8ba8d8"/></marker></defs>
+  <rect class="bg" width="900" height="280" rx="20"/>
+  <rect class="box" x="35" y="70" width="220" height="135" rx="14"/>
+  <text class="text" x="68" y="115">Creality K2</text><text class="small" x="68" y="145">Moonraker status</text><text class="small" x="68" y="169">camera and profiles</text>
+  <line class="line" x1="265" y1="138" x2="385" y2="138"/>
+  <rect class="safe" x="395" y="45" width="220" height="185" rx="14"/>
+  <text class="text" x="432" y="95">K2 MCP</text><text class="small" x="432" y="126">local context</text><text class="small" x="432" y="150">read-only by default</text><text class="small" x="432" y="174">guarded controls</text>
+  <line class="line" x1="625" y1="138" x2="745" y2="138"/>
+  <rect class="box" x="755" y="70" width="110" height="135" rx="14"/>
+  <text class="text" x="774" y="115">MCP</text><text class="text" x="766" y="140">clients</text><text class="small" x="774" y="169">Claude</text><text class="small" x="774" y="189">Codex</text>
+</svg>
