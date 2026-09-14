@@ -13,11 +13,12 @@ file.
 ## Write mode
 
 `K2_ALLOW_WRITE=1` is a conscious local choice. It enables only named actions:
-pause, resume, cancel with confirmation, upload a local `.gcode`, bounded
-temperature changes, bounded speed changes, and model fan adjustment.
+pause, resume, cancel with confirmation, bounded temperature changes, bounded
+speed changes, and model fan adjustment.
 
-It does not expose a general-purpose G-code tool. Uploading a file does not
-start it by default. Starting immediately requires `confirm='CONFIRM'`.
+It does not expose G-code upload or a general-purpose G-code tool. Before the
+first physical action, it also verifies the K2 object capabilities through a
+read-only query.
 
 ## Before enabling write access
 

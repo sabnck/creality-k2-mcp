@@ -1,3 +1,4 @@
+import asyncio
 import sys
 import unittest
 from pathlib import Path
@@ -44,6 +45,9 @@ class ServerTests(unittest.TestCase):
         server = create_server(Settings(host="printer.local"))
 
         self.assertEqual(server.name, "creality-k2-mcp")
+        names = {tool.name for tool in asyncio.run(server.list_tools())}
+        self.assertIn("slice_plan", names)
+        self.assertNotIn("upload_gcode", names)
 
 
 if __name__ == "__main__":

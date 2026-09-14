@@ -16,10 +16,19 @@ USER_PATH = re.compile(
     r"(?i)(?:[A-Z]:\\" + "Users" + r"\\|/" + "Users" + r"/|/" + "home" + r"/)"
 )
 SUSPECT_ASSIGNMENT = re.compile(
-    r"(?im)^\s*(?:[A-Z0-9_]*(?:TOKEN|SECRET|PASSWORD|API_KEY)[A-Z0-9_]*)\s*[=:]\s*['\"]?(?!YOUR_|REPLACE_|<)[^\s'\"]{8,}"
+    r"(?im)(?:^\s*|[,{]\s*)['\"]?[A-Z0-9_]*(?:TOKEN|SECRET|PASSWORD|API_KEY)[A-Z0-9_]*['\"]?\s*[=:]\s*['\"]?(?!YOUR_|REPLACE_|<)[^\s'\"\]},]{8,}"
 )
 FORBIDDEN_SUFFIXES = {".gcode", ".3mf", ".stl", ".jpeg", ".jpg", ".png"}
-TEXT_SUFFIXES = {"", ".md", ".py", ".toml", ".json", ".txt", ".yml", ".yaml", ".svg", ".ini"}
+SENSITIVE_SUFFIXES = {".pem", ".key", ".p12", ".pfx", ".ppk"}
+SENSITIVE_FILENAMES = {"id_rsa", "id_ecdsa", "id_ed25519"}
+PRIVATE_KEY_CONTENT = re.compile(
+    r"-----BEGIN (?:[A-Z ]+ )?PRIVATE KEY-----|-----BEGIN "
+    + "OPENSSH"
+    + r" PRIVATE KEY-----|"
+    + "PuTTY"
+    + r"-User-Key-File",
+    re.I,
+)
 IGNORED_PARTS = {".git", "__pycache__", ".venv", "node_modules"}
 
 
@@ -40,12 +49,14 @@ def audit(root: Path) -> AuditResult:
         if path.suffix.lower() in FORBIDDEN_SUFFIXES:
             errors.append(f"forbidden artifact tracked: {relative}")
             continue
-        if path.suffix.lower() not in TEXT_SUFFIXES:
-            continue
+        if path.name.lower() == ".env":
+            errors.append(f"environment file must not be tracked: {relative}")
+        if path.suffix.lower() in SENSITIVE_SUFFIXES or path.name.lower() in SENSITIVE_FILENAMES:
+            errors.append(f"sensitive private key file must not be tracked: {relative}")
         try:
             content = path.read_text(encoding="utf-8")
         except UnicodeDecodeError:
-            errors.append(f"non-text file requires manual review: {relative}")
+            errors.append(f"binary file requires manual review: {relative}")
             continue
         if PRIVATE_IP.search(content):
             errors.append(f"private network address found: {relative}")
@@ -53,6 +64,8 @@ def audit(root: Path) -> AuditResult:
             errors.append(f"personal user path found: {relative}")
         if SUSPECT_ASSIGNMENT.search(content):
             errors.append(f"possible secret assignment found: {relative}")
+        if PRIVATE_KEY_CONTENT.search(content):
+            errors.append(f"private key material found: {relative}")
     return AuditResult(errors)
 
 

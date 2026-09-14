@@ -20,8 +20,9 @@ and add another Moonraker-based machine honestly.
   Klipper messages.
 - Read-only inspection of a local G-code file or Creality 3MF project.
 - The actual profiles installed on the computer, not an invented list.
+- A reviewable local Creality Print slice plan that the client does not run.
 - Optional, bounded printer actions only after the owner explicitly enables
-  them. There is no raw G-code execution tool.
+  them. There is no G-code upload or raw G-code execution tool.
 
 ## Start here if you are not a developer
 
@@ -92,13 +93,12 @@ fixed bounds:
 | --- | --- |
 | Pause or resume | Requires write access to be enabled. |
 | Cancel | Requires `confirm='CONFIRM'`. |
-| Upload G-code | Only `.gcode`; starting immediately also requires confirmation. |
 | Nozzle temperature | 0 to `K2_MAX_NOZZLE`, default ceiling 280 C. |
 | Bed temperature | 0 to `K2_MAX_BED`, default ceiling 110 C. |
 | Print speed | 30 to 150 percent. |
 | Model fan | 0 to 100 percent. |
 
-There is deliberately no general “run this G-code” tool.
+There is deliberately no G-code upload or general “run this G-code” tool.
 
 ## Compatibility
 

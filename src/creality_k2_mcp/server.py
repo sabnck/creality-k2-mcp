@@ -14,7 +14,7 @@ from .config import Settings
 from .moonraker import MoonrakerClient
 from .profiles import K2Profile
 from .setup_prompt import SETUP_PROMPT
-from .slicer import ProfileCatalog
+from .slicer import ProfileCatalog, SlicePlanner
 from .status import duration_hms, remaining_seconds
 
 
@@ -32,6 +32,7 @@ class PrinterService:
         self.client = client or MoonrakerClient(settings.base_url)
         self.profile = K2Profile()
         self._snapshot_fetcher = snapshot_fetcher or self._fetch_snapshot
+        self._write_verified = False
 
     def printer_status(self) -> dict[str, Any]:
         status = self.profile.normalize_status(self.client.get_objects(self.profile.object_names))
@@ -97,18 +98,23 @@ class PrinterService:
         settings = analyze_3mf(Path(path))["settings"]
         return {key: value for key, value in settings.items() if query in key.lower()}
 
-    def upload_gcode(self, path: str, start: bool = False, confirm: str = "") -> str:
-        file_path = Path(path)
-        if file_path.suffix.lower() != ".gcode":
-            return "Refused: only a .gcode file can be uploaded."
-        if not file_path.is_file():
-            return f"G-code file was not found: {file_path}"
-        if start and confirm.strip().upper() != "CONFIRM":
-            return "G-code was not uploaded. Starting a print requires confirm='CONFIRM'."
-        if not self.settings.allow_write:
-            return "Printer control is disabled. Set K2_ALLOW_WRITE=1 only after you choose to allow it."
-        self.client.upload_gcode(file_path, start=start)
-        return "G-code uploaded and print started." if start else "G-code uploaded. Review it on the printer before starting."
+    def slice_plan(
+        self,
+        model: str,
+        nozzle: str,
+        material: str,
+        process: str,
+        overrides: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Create a local, reviewable Creality Print command without running it."""
+        return SlicePlanner(self.settings).prepare(
+            model=Path(model),
+            nozzle=nozzle,
+            material=material,
+            process=process,
+            overrides=overrides,
+            output_dir=self.settings.work_dir / "slice-plans",
+        )
 
     def pause_print(self) -> str:
         return self._write("/printer/print/pause", "Print paused.")
@@ -145,6 +151,15 @@ class PrinterService:
     def _write(self, path: str, message: str, **params: Any) -> str:
         if not self.settings.allow_write:
             return "Printer control is disabled. Set K2_ALLOW_WRITE=1 only after you choose to allow it."
+        if not self._write_verified:
+            try:
+                objects = self.client.get_objects(self.profile.object_names)
+            except Exception:
+                return "Printer control is refused until K2 capabilities can be verified by a read-only check."
+            required = {"virtual_sdcard", "output_pin fan0", "output_pin fan2"}
+            if not required.issubset(objects):
+                return "Printer control is refused because K2 capabilities were not verified by the read-only check."
+            self._write_verified = True
         self.client.post_path(path, **params)
         return message
 
@@ -184,7 +199,7 @@ def create_server(settings: Settings | None = None) -> MCPServer:
     server.tool(name="model_info")(service.model_info)
     server.tool(name="gcode_info")(service.gcode_info)
     server.tool()(service.search_settings)
-    server.tool()(service.upload_gcode)
+    server.tool()(service.slice_plan)
     server.tool()(service.pause_print)
     server.tool()(service.resume_print)
     server.tool()(service.cancel_print)

@@ -21,8 +21,9 @@ como testar e adicionar outra máquina Moonraker sem inventar compatibilidade.
 - Leitura local de G-code e de projetos 3MF da Creality, sem alterar os
   ficheiros.
 - Os perfis que realmente existem no computador.
+- Um plano local e revísavel de fatiamento para o Creality Print, sem executar.
 - Comandos limitados para a impressora, apenas depois de autorização explícita.
-  Não existe ferramenta para executar G-code arbitrário.
+  Não existe envio nem ferramenta para executar G-code arbitrário.
 
 ## Começa aqui se não fores dev
 
@@ -90,13 +91,12 @@ impressora real. Mesmo assim, cada ação tem limites:
 | --- | --- |
 | Pausar ou retomar | Exige escrita ativada. |
 | Cancelar | Exige `confirm='CONFIRM'`. |
-| Enviar G-code | Aceita apenas `.gcode`; iniciar de imediato também exige confirmação. |
 | Temperatura do bico | 0 até `K2_MAX_NOZZLE`, teto padrão de 280 C. |
 | Temperatura da mesa | 0 até `K2_MAX_BED`, teto padrão de 110 C. |
 | Velocidade | 30 a 150 por cento. |
 | Ventilador do modelo | 0 a 100 por cento. |
 
-Não há, de propósito, uma ferramenta genérica para executar G-code.
+Não há, de propósito, envio ou ferramenta genérica para executar G-code.
 
 ## Compatibilidade
 

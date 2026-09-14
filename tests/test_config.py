@@ -23,6 +23,10 @@ class SettingsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "K2_HOST"):
             Settings.from_env({})
 
+    def test_rejects_a_temperature_ceiling_above_the_k2_hard_limit(self):
+        with self.assertRaisesRegex(ValueError, "maximum"):
+            Settings(host="printer.local", max_nozzle_c=281)
+
 
 if __name__ == "__main__":
     unittest.main()

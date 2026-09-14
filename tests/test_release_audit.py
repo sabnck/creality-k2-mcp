@@ -39,6 +39,42 @@ class ReleaseAuditTests(unittest.TestCase):
         self.assertTrue(result.has_errors)
         self.assertIn("forbidden artifact", "\n".join(result.errors))
 
+    def test_audit_scans_dotenv_and_sensitive_key_files(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / ".env").write_text("API_KEY" + "=real-secret-value", encoding="utf-8")
+            (root / "private.pem").write_text("private key material", encoding="utf-8")
+
+            result = audit(root)
+
+        self.assertTrue(result.has_errors)
+        errors = "\n".join(result.errors)
+        self.assertIn("environment file", errors)
+        self.assertIn("sensitive private key file", errors)
+
+    def test_audit_rejects_a_structured_secret_assignment(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "settings.json").write_text(
+                "{" + '"api_' + 'key": "real-secret-value"' + "}", encoding="utf-8"
+            )
+
+            result = audit(root)
+
+        self.assertTrue(result.has_errors)
+        self.assertIn("possible secret assignment", "\n".join(result.errors))
+
+    def test_audit_rejects_extensionless_and_putty_private_keys(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "id_rsa").write_text("-----BEGIN " + "OPENSSH PRIVATE KEY-----", encoding="utf-8")
+            (root / "printer.ppk").write_text("PuTTY" + "-User-Key-File-2: ssh-rsa", encoding="utf-8")
+
+            result = audit(root)
+
+        self.assertTrue(result.has_errors)
+        self.assertGreaterEqual("\n".join(result.errors).count("private key"), 2)
+
 
 if __name__ == "__main__":
     unittest.main()

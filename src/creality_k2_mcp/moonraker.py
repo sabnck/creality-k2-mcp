@@ -7,7 +7,6 @@ same local network, where an inherited corporate or system proxy is incorrect.
 from __future__ import annotations
 
 from collections.abc import Iterable
-from pathlib import Path
 from typing import Any
 
 import httpx
@@ -54,21 +53,6 @@ class MoonrakerClient:
         with httpx.Client(timeout=self.timeout_seconds, trust_env=False) as client:
             response = client.post(f"{self.base_url}{path}", params=params or None)
             response.raise_for_status()
-        payload = response.json()
-        result = payload.get("result") if isinstance(payload, dict) else None
-        return result if isinstance(result, dict) else {}
-
-    def upload_gcode(self, path: Path, *, start: bool) -> dict[str, Any]:
-        """Upload one local G-code file through Moonraker's standard endpoint."""
-        path = Path(path)
-        with path.open("rb") as handle:
-            with httpx.Client(timeout=600, trust_env=False) as client:
-                response = client.post(
-                    f"{self.base_url}/server/files/upload",
-                    files={"file": (path.name, handle, "application/octet-stream")},
-                    data={"root": "gcodes", "print": "true" if start else "false"},
-                )
-                response.raise_for_status()
         payload = response.json()
         result = payload.get("result") if isinstance(payload, dict) else None
         return result if isinstance(result, dict) else {}

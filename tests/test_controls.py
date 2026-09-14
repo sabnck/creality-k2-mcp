@@ -11,8 +11,19 @@ from creality_k2_mcp.server import PrinterService
 
 
 class RecordingClient:
-    def __init__(self):
+    def __init__(self, *, k2_capable=True):
         self.calls = []
+        self.k2_capable = k2_capable
+
+    def get_objects(self, names):
+        if not self.k2_capable:
+            return {"print_stats": {"state": "standby"}}
+        return {
+            "print_stats": {"state": "standby"},
+            "virtual_sdcard": {},
+            "output_pin fan0": {},
+            "output_pin fan2": {},
+        }
 
     def post_path(self, path, **params):
         self.calls.append((path, params))
@@ -47,16 +58,15 @@ class ControlsTests(unittest.TestCase):
         self.assertIn("Refused", result)
         self.assertEqual(client.calls, [])
 
-    def test_upload_is_refused_when_write_is_disabled(self):
-        with TemporaryDirectory() as directory:
-            file_path = Path(directory) / "safe.gcode"
-            file_path.write_text("G1 X0", encoding="utf-8")
-            client = RecordingClient()
-            service = PrinterService(Settings(host="printer.local"), client=client)
-            result = service.upload_gcode(str(file_path))
+    def test_write_is_refused_when_k2_capabilities_are_not_verified(self):
+        client = RecordingClient(k2_capable=False)
+        service = PrinterService(Settings(host="printer.local", allow_write=True), client=client)
 
-        self.assertIn("disabled", result.lower())
+        result = service.pause_print()
+
+        self.assertIn("K2 capabilities", result)
         self.assertEqual(client.calls, [])
+
 
 
 if __name__ == "__main__":
